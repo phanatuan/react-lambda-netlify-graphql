@@ -1,35 +1,35 @@
 import React, { Component } from "react"
 import logo from "./logo.svg"
 import "./App.css"
+import ApolloClient, { gql } from 'apollo-boost';
+import { ApolloProvider, Query } from "react-apollo";
 
-class LambdaDemo extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { loading: false, msg: null }
-  }
 
-  handleClick = api => e => {
-    e.preventDefault()
+const client = new ApolloClient({
+  uri: "/.netlify/functions/graphql"
+});
 
-    this.setState({ loading: true })
-    fetch("/.netlify/functions/" + api)
-      .then(response => response.json())
-      .then(json => this.setState({ loading: false, msg: json.msg }))
-  }
+const LambdaDemo = () => (
+  <ApolloProvider client={client}>
+    <Query query={
+      gql`
+        {
+          hello
+        }
+      `
+    }>
 
-  render() {
-    const { loading, msg } = this.state
+    {({data}) => 
+      <div>Greeting from the server {data.hello}</div>
+    }
 
-    return (
-      <p>
-        <button onClick={this.handleClick("hello")}>{loading ? "Loading..." : "Call Lambda"}</button>
-        <button onClick={this.handleClick("async-dadjoke")}>{loading ? "Loading..." : "Call Async Lambda"}</button>
-        <br />
-        <span>{msg}</span>
-      </p>
-    )
-  }
-}
+    </Query>
+  
+  </ApolloProvider>
+)
+
+
+
 
 class App extends Component {
   render() {
@@ -46,5 +46,34 @@ class App extends Component {
     )
   }
 }
+
+// class LambdaDemo extends Component {
+//   constructor(props) {
+//     super(props)
+//     this.state = { loading: false, msg: null }
+//   }
+
+//   handleClick = api => e => {
+//     e.preventDefault()
+
+//     this.setState({ loading: true })
+//     fetch("/.netlify/functions/" + api)
+//       .then(response => response.json())
+//       .then(json => this.setState({ loading: false, msg: json.msg }))
+//   }
+
+//   render() {
+//     const { loading, msg } = this.state
+
+//     return (
+//       <p>
+//         <button onClick={this.handleClick("hello")}>{loading ? "Loading..." : "Call Lambda"}</button>
+//         <button onClick={this.handleClick("async-dadjoke")}>{loading ? "Loading..." : "Call Async Lambda"}</button>
+//         <br />
+//         <span>{msg}</span>
+//       </p>
+//     )
+//   }
+// }
 
 export default App
